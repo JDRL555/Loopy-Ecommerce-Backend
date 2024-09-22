@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id String @id @default(cuid())
+  first_name String  
+  last_name String
+  email String @unique
+  password String 
+  cart Cart?
+  role Role
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Cart {
+  id String @id @default(cuid())
+  user User @relation(fields: [userId], references: [id])
+  items CartItem[]
+  order Order?
+  userId String @unique
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Product {
+  id String @id @default(cuid())
+  img_url String
+  name String
+  available_units Int
+  price_usd Decimal
+  price_cop Decimal
+  price_bs Decimal
+  category Category @relation(fields: [categoryId], references: [id])
+  categoryId String
+  cartItems CartItem[]
+  colors Color[]
+  sizes Size[]
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Category {
+  id String @id @default(cuid())
+  name String
+  products Product[]
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model CartItem {
+  id String @id @default(cuid())
+  cart Cart @relation(fields: [cartId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+  quantity Int @default(1)
+  cartId String
+  productId String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Order {
+  id String @id @default(cuid())
+  cart Cart @relation(fields: [cartId], references: [id])
+  cartId String @unique
+  status OrderStatus @default(PENDING)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  CANCELED
+}
+
+enum Role {
+  CLIENT
+  MANAGER
+  ADMINISTRATOR
+}
+
+enum Color {
+  BLACK
+  WHITE
+  GREY
+  YELLOW
+  ORANGE
+  RED
+  GREEN
+  BLUE
+  CIAN
+  PINK
+  PURPLE
+}
+
+enum Size {
+  XS
+  S
+  M
+  L
+  XL
+}
