@@ -3,6 +3,8 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { User } from './users.model';
+import { UserParamsDto } from './dto/user-params.dto';
+import { ApiResponse } from 'src/global/interfaces/api.interfaces';
 
 @Injectable()
 export class UsersService {
@@ -13,8 +15,28 @@ export class UsersService {
     return await this.prisma.user.create({ data: createUserDto });
   }
 
-  async findAll(): Promise<User[]> {
-    return await this.prisma.user.findMany()
+  async findAll(params: UserParamsDto): Promise<ApiResponse<User>> {
+    const page = params.page
+    const perPage = params.limit
+    const filter = params.filter
+    const total = await this.prisma.user.count({
+      where: filter
+    })
+    return {
+      data: await this.prisma.user.findMany({
+        skip: (page - 1) * perPage,
+        take: perPage,
+        where: filter
+      }),
+      message: [],
+      meta: {
+        total,
+        page,
+        lastPage: Math.ceil( total / perPage ),
+        limit: perPage,
+        filter
+      }
+    }
   }
 
   async findOne(id: string): Promise<User | null> {

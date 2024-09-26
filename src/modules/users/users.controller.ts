@@ -1,12 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Res } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Res, Query, BadRequestException } from '@nestjs/common';
 import { Response } from 'express';
 import { genSalt, hash } from 'bcrypt'
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './users.model';
-import { ApiResponse } from 'src/interfaces/api.interfaces'
+import { ApiResponse } from 'src/global/interfaces/api.interfaces'
 import { DEFAULT_SERVER_ERROR_RESPONSE } from 'src/constants/api.constants';
+import { UserParamsDto } from './dto/user-params.dto';
+import { validate } from 'class-validator';
+import { plainToClass } from 'class-transformer';
+import { validateFilter } from 'src/global/utils/validate-filter.util';
 
 @Controller('users')
 export class UsersController {
@@ -40,12 +44,21 @@ export class UsersController {
   @Get()
   async findAll(
     @Res() response: Response,
+    @Query() params: UserParamsDto
   ): Promise<Response> {
     try {
-      const users = await this.usersService.findAll()
+      const errors = await validateFilter(UpdateUserDto, params.filter)
+      if(errors.message.length > 0) {
+        return response.status(400).json(errors)
+      }
+      const { 
+        data: users,
+        meta 
+      } = await this.usersService.findAll(params)
       return response.status(200).json({
-        data: users as User[],
-        message: []
+        data: users,
+        message: [],
+        meta
       } as ApiResponse<User>)
     } catch (error) {
       console.log(error);
