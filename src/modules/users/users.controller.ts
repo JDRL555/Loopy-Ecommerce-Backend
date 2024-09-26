@@ -8,8 +8,6 @@ import { User } from './users.model';
 import { ApiResponse } from 'src/global/interfaces/api.interfaces'
 import { DEFAULT_SERVER_ERROR_RESPONSE } from 'src/constants/api.constants';
 import { UserParamsDto } from './dto/user-params.dto';
-import { validate } from 'class-validator';
-import { plainToClass } from 'class-transformer';
 import { validateFilter } from 'src/global/utils/validate-filter.util';
 
 @Controller('users')
