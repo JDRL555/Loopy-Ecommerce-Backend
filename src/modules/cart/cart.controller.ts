@@ -1,20 +1,45 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Res } from '@nestjs/common';
 import { CartService } from './cart.service';
 import { CreateCartDto } from './dto/create-cart.dto';
 import { UpdateCartDto } from './dto/update-cart.dto';
+import { Response } from 'express';
+import { ApiResponse } from 'src/global/interfaces/api.interfaces';
+import { Cart } from '@prisma/client';
 
-@Controller('cart')
+@Controller('carts')
 export class CartController {
   constructor(private readonly cartService: CartService) {}
 
   @Post()
-  create(@Body() createCartDto: CreateCartDto) {
-    return this.cartService.create(createCartDto);
+  async create(
+    @Body() createCartDto: CreateCartDto,
+    @Res() response: Response
+  ): Promise<Response> {
+    const cart = await this.cartService.create(createCartDto)
+    if(!cart) {
+      return response.status(404).json({
+        data: {} as Cart,
+        message: [{
+          field: "user",
+          error: "User not found"
+        }]
+      } as ApiResponse<Cart>)
+    }
+    return response.status(200).json({
+      data: cart as Cart,
+      message: []
+    } as ApiResponse<Cart>) 
   }
 
   @Get()
-  findAll() {
-    return this.cartService.findAll();
+  async findAll(
+    @Res() response: Response
+  ): Promise<Response> {
+    const carts = await this.cartService.findAll()
+    return response.status(200).json({
+      data: carts,
+      message: []
+    } as ApiResponse<Cart>);
   }
 
   @Get(':id')
