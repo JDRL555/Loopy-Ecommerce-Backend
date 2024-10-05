@@ -4,15 +4,15 @@ import { genSalt, hash } from 'bcrypt'
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './users.model';
+import { User } from './model/users.model';
 import { ApiResponse } from 'src/global/interfaces/api.interfaces'
 import { DEFAULT_SERVER_ERROR_RESPONSE } from 'src/constants/api.constants';
 import { UserParamsDto } from './dto/user-params.dto';
-import { validateFilter } from 'src/global/utils/validate-filter.util';
+import { ControllerUtils } from 'src/global/utils/controller.util';
 
 @Controller('users')
-export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+export class UsersController extends ControllerUtils {
+  constructor(private readonly usersService: UsersService) { super(); }
 
   @Post()
   async create(
@@ -26,6 +26,7 @@ export class UsersController {
         ...createUserDto,
         password: password_hashed
       });
+
       return response.status(201).json({
         data: newUser as User,
         message: []
@@ -45,7 +46,7 @@ export class UsersController {
     @Query() params: UserParamsDto
   ): Promise<Response> {
     try {
-      const errors = await validateFilter(UpdateUserDto, params.filter)
+      const errors = await this.validateFilter(UpdateUserDto, params.filter)
       if(errors.message.length > 0) {
         return response.status(400).json(errors)
       }

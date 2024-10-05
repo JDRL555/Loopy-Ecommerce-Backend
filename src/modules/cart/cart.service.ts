@@ -22,15 +22,15 @@ export class CartService {
     return await this.prisma.cart.findMany();
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     return `This action returns a #${id} cart`;
   }
 
-  update(id: number, updateCartDto: UpdateCartDto) {
+  update(id: string, updateCartDto: UpdateCartDto) {
     return `This action updates a #${id} cart`;
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return `This action removes a #${id} cart`;
   }
 }
