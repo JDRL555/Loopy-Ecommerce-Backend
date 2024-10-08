@@ -34,9 +34,7 @@ model Product {
   img_url String
   name String
   available_units Int
-  price_usd Decimal
-  price_cop Decimal
-  price_bs Decimal
+  price Decimal
   category Category @relation(fields: [categoryId], references: [id])
   categoryId String
   cartItems CartItem[]
