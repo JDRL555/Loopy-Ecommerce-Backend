@@ -7,7 +7,6 @@ export class User implements Prisma.UserCreateInput {
   email: string;
   password: string;
   role: $Enums.Role;
-  cart?: Prisma.CartCreateNestedOneWithoutUserInput;
   created_at?: string | Date;
   updated_at?: string | Date;
 }
