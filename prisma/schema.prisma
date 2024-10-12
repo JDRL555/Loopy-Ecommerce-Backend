@@ -13,18 +13,16 @@ model User {
   last_name String
   email String @unique
   password String 
-  cart Cart?
   role Role
+  order Order?
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 }
 
 model Cart {
   id String @id @default(cuid())
-  user User @relation(fields: [userId], references: [id])
   items CartItem[]
   order Order?
-  userId String @unique
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 }
@@ -66,7 +64,9 @@ model CartItem {
 model Order {
   id String @id @default(cuid())
   cart Cart @relation(fields: [cartId], references: [id])
+  user User @relation(fields: [userId], references: [id])
   cartId String @unique
+  userId String @unique
   status OrderStatus @default(PENDING)
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt

@@ -1,6 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { CreateCartDto } from './dto/create-cart.dto';
-import { UpdateCartDto } from './dto/update-cart.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -8,29 +6,24 @@ export class CartService {
   
   constructor(private prisma: PrismaService) {}
 
-  async create(createCartDto: CreateCartDto) {
-    const user = await this.prisma.user.findFirst({
-      where: { id: createCartDto.userId }
-    })
-    if(!user) {
-      return null
-    }
-    return await this.prisma.cart.create({ data: createCartDto })
+  async create() {
+    return await this.prisma.cart.create({ data: {} })
   }
 
   async findAll() {
-    return await this.prisma.cart.findMany();
+    return await this.prisma.cart.findMany({ include: { items: true } });
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id} cart`;
+  async findOne(id: string) {
+    return await this.prisma.cart.findFirst({
+      where: { id },
+      include: {
+        items: true
+      }
+    })
   }
 
-  update(id: string, updateCartDto: UpdateCartDto) {
-    return `This action updates a #${id} cart`;
-  }
-
-  remove(id: string) {
-    return `This action removes a #${id} cart`;
+  async remove(id: string) {
+    return await this.prisma.cart.delete({ where: { id } })
   }
 }
