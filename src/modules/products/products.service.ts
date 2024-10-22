@@ -64,9 +64,32 @@ export class ProductsService {
     return await this.prisma.product.findFirst({ where: { id } })
   }
 
-  async update(id: string, updateProductDto: UpdateProductDto): Promise<Product | null> {
+  async update(id: string, updateProductDto: UpdateProductDto): Promise<Product | null | undefined> {
+    const product = await this.prisma.product.findFirst({ where: { id } })
+    if(!product) {
+      return null
+    }
+    if(
+      updateProductDto.price_offer 
+      && 
+      parseInt(String(updateProductDto.price_offer)) > parseInt(String(product.price))
+    ) {
+      return undefined
+    } else if(
+      updateProductDto.price_offer 
+      && 
+      updateProductDto.price
+      &&
+      parseInt(String(updateProductDto.price_offer)) > parseInt(String(updateProductDto.price))
+    ) {
+      return undefined
+    }
+
     return await this.prisma.product.update({
-      data: updateProductDto,
+      data: {
+        ...updateProductDto,
+        is_offer: updateProductDto?.price_offer ? true : false
+      },
       where: { id }
     })
   }

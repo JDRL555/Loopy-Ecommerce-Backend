@@ -20,6 +20,15 @@ export class ProductsController extends ControllerUtils {
     @Body() createProductDto: CreateProductDto
   ): Promise<Response> {
     try {
+      if(createProductDto.price_offer && createProductDto.price_offer > createProductDto.price) {
+        return response.status(400).json({
+          data: {},
+          message: [{
+            field: "price_offer",
+            error: "The offer price can't be greater than the price"
+          }]
+        } as ApiResponse<Product>)
+      }
       const newProduct = await this.productsService.create(createProductDto)
 
       if(!newProduct) {
@@ -90,12 +99,22 @@ export class ProductsController extends ControllerUtils {
     @Body() updateProductDto: UpdateProductDto
   ): Promise<Response> {
     const updatedProduct = await this.productsService.update(id, updateProductDto);
+    if(updatedProduct === undefined) {
+      return response.status(400).json({
+        data: {},
+        message: [{
+          field: "price_offer",
+          error: "The offer price must be lower than the price"
+        }]
+      } as ApiResponse<Product>)
+    }
+
     if(!updatedProduct) {
       return response.status(404).json({
         data: {},
         message: [{
-          field: "categoryId",
-          error: "The category doesn't exists"
+          field: "categoryId, product",
+          error: "The category or the product doesn't exists"
         }]
       } as ApiResponse<Product>)
     }

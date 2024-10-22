@@ -13,7 +13,7 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     const user = await this.prisma.user.create({ data: createUserDto })
-    await this.prisma.cart.create({ data: { userId: user.id } })
+    await this.prisma.cart.create({ data: {} })
     return user;
   }
 
